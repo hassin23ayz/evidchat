@@ -20,3 +20,10 @@ littlechat$ mix ecto.create
 littlechat$ mix ecto.migrate
 littlechat$ iex -S mix phx.server
 
+littlechat/lib/littlechat_web$ mkdir -p live/room
+
+> littlechat/lib/littlechat_web/room/live/new_live.ex
+> littlechat/lib/littlechat_web/room/live/show_live.ex
+> littlechat/lib/littlechat_web/router.ex
+
+littlechat$ iex -S mix phx.server
