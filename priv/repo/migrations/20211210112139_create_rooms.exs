@@ -8,5 +8,7 @@ defmodule Littlechat.Repo.Migrations.CreateRooms do
 
       timestamps()
     end
+
+  create unique_index(:rooms, :slug)
   end
 end

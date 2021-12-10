@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :littlechat, Littlechat.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "DBP@55",
   database: "littlechat_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
