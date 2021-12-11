@@ -31,6 +31,23 @@ let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("
 // video stream
 var localStream
 
+// keeping track of our users
+var users = {}
+
+// user connections manipulation 
+function addUserConnection(userUuid) {
+	if (users[userUuid] == undefined) {
+		users[userUuid] = { peerConnection: null}
+	}
+	return users
+}
+
+function removeUserConnection(userUuid) {
+	delete users[userUuid]
+
+	return users
+}
+
 async function initStream() {
 	try {
 		// Gets our local media from the browser and stores it as a const stream 
@@ -45,11 +62,25 @@ async function initStream() {
 	}
 }
 
+// hooks related 
 let Hooks = {}
+
+// show_live.ex: phx-hook="JoinCall" @button event
 Hooks.JoinCall = {
   mounted () {
     initStream()
   }
+}
+
+// show_live.ex: phx-hook="InitUser" @ each connected_users video liveview
+Hooks.InitUser = {
+	mounted() {
+		addUserConnection(this.el.dataset.userUuid)
+	},
+
+	destroyed() {
+		removeUserConnection( this.el.dataset.userUuid)
+	}
 }
 
 let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})

@@ -38,4 +38,12 @@ littlechat$ iex -S mix phx.server
 
 > assets/js/app.js : add media (vid/microphone) access 
 
+> assets/css/app.css : fix mirror 
+
+> littlechat/lib/littlechat_web/room/live/show_live.ex : add video fields of connected users 
+
+$ npm install ngrok -g
+> signup at ngrok 
+$ ngrok authtoken 2***********************************
+$ ngrok http 4000
 

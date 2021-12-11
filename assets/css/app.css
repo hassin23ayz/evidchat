@@ -87,3 +87,7 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+#local-video {
+  transform: rotateY(180deg);
+}

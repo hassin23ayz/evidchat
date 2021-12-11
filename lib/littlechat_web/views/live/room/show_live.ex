@@ -16,21 +16,33 @@ defmodule LittlechatWeb.Room.ShowLive do
   @impl true
   def render(assigns) do
     ~L"""
+    <h1>Room = </h1>
     <h1><%= @room.title %></h1>
-    <h2>created User now :</h2>
-    <h2><%= @user.uuid %></h2>
 
     <h3>Connected Users:</h3>
     <ul>
-    <%= for uuid <- @connected_users do %>
-    <li><%= uuid %></li>
-    <% end %>
+      <%= for uuid <- @connected_users do %>
+          <li>
+              <%= uuid %>
+          </li>
+      <% end %>
     </ul>
 
-    <video id="local-video" playsinline autoplay muted width="600">
-    </video>   
-    <button class="button" phx-hook="JoinCall">Join Call </button>
+    <div class="streams">
+      <video 
+        id="local-video" playsinline autoplay muted width="600">
+      </video>   
+    
+      <%= for uuid <- @connected_users do %>
+        <video 
+          id="video-remote-<%= uuid %>" 
+          data-user-uuid="<%= uuid %>" 
+          playsinline autoplay phx-hook="InitUser">
+        </video>
+      <% end %>
+    </div>
 
+    <button class="button" phx-hook="JoinCall">Join Call </button>
     """
   end
 
