@@ -9,7 +9,7 @@ littlechat$ mix phx.gen.context Organizer Room rooms title:string slug:string
 > littlechat/organizer/room.ex                          : changeset enhance
 
 $ sudo -u postgres psql
-* postgres=# ALTER USER postgres WITH PASSWORD 'DBP@55';
+* postgres=# ALTER USER postgres WITH PASSWORD '****';
 * postgres=# ALTER ROLE postgres CREATEDB;
 * postgres=# ALTER ROLE postgres LOGIN;
 
