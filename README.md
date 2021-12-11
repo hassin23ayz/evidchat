@@ -36,3 +36,6 @@ littlechat$ iex -S mix phx.server
 > littlechat/lib/application.ex : Presence Module add at supervision tree 
 > littlechat/lib/littlechat_web/room/live/show_live.ex : track the created connected user 
 
+> assets/js/app.js : add media (vid/microphone) access 
+
+
