@@ -29,5 +29,10 @@ littlechat/lib/littlechat_web$ mkdir -p live/room
 littlechat$ iex -S mix phx.server
 
 > littlechat/lib/littlechat/connected_user.ex   : defstruct is uuid
-
 > littlechat/lib/littlechat_web/room/live/show_live.ex : gen uuid for user
+
+> littlechat/lib/littlechat_web/presence.ex     : link with default pubsub server 
+
+> littlechat/lib/application.ex : Presence Module add at supervision tree 
+> littlechat/lib/littlechat_web/room/live/show_live.ex : track the created connected user 
+
