@@ -27,3 +27,7 @@ littlechat/lib/littlechat_web$ mkdir -p live/room
 > littlechat/lib/littlechat_web/router.ex
 
 littlechat$ iex -S mix phx.server
+
+> littlechat/lib/littlechat/connected_user.ex   : defstruct is uuid
+
+> littlechat/lib/littlechat_web/room/live/show_live.ex : gen uuid for user

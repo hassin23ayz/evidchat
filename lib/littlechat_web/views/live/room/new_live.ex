@@ -8,6 +8,8 @@ defmodule LittlechatWeb.Room.NewLive do
 
   @impl true
   def render(assigns) do
+    IO.puts("Debug:")
+    IO.inspect(assigns)
     ~L"""
     <h1>Create a New Room</h1>
     <div>
@@ -41,11 +43,13 @@ defmodule LittlechatWeb.Room.NewLive do
   def handle_event("save", _, %{assigns: %{changeset: changeset}} = socket) do
     case Repo.insert(changeset) do
       {:ok, room} ->
+        IO.puts("form submit -> new room save -> OK")
         {:noreply,
           socket
           |> push_redirect(to: Routes.show_path(socket, :show, room.slug))
         }
       {:error, changeset} ->
+        IO.puts("form submit -> new room save -> Error")
         {:noreply,
           socket
           |> assign(:changeset, changeset)

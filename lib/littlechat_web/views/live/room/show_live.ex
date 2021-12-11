@@ -8,11 +8,13 @@ defmodule LittlechatWeb.Room.ShowLive do
   use LittlechatWeb, :live_view
 
   alias Littlechat.Organizer
+  alias Littlechat.ConnectedUser
 
   @impl true
   def render(assigns) do
     ~L"""
     <h1><%= @room.title %></h1>
+    <h1><%= @user.uuid %></h1>
     """
   end
 
@@ -26,10 +28,16 @@ defmodule LittlechatWeb.Room.ShowLive do
           |> push_redirect(to: Routes.new_path(socket, :new))
         }
       room ->
+        user = create_connected_user()
         {:ok,
           socket
           |> assign(:room, room)
+          |> assign(:user, user)
         }
     end
+  end
+
+  defp create_connected_user do
+    %ConnectedUser{uuid: UUID.uuid4()}
   end
 end
