@@ -49,6 +49,7 @@ function removeUserConnection(userUuid) {
 }
 
 async function initStream() {
+	console.log("DBG: initStream() called")
 	try {
 		// Gets our local media from the browser and stores it as a const stream 
 		const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true, width: "1280"})
@@ -63,11 +64,20 @@ async function initStream() {
 }
 
 // hooks related 
+/*
+  A Phx-hook type element at Phx Elixir Render EEEx code 
+  can make the js side client code do something 
+
+  for example here when the html first gets rendered by liveview 
+  calls the initStreamReq hook's mounted callback gets called via the hook 
+*/
 let Hooks = {}
 
-// show_live.ex: phx-hook="JoinCall" @button event
-Hooks.JoinCall = {
-  mounted () {
+// show_live.ex: phx-hook="initStremReq"
+Hooks.initStremReq = {
+  mounted () 
+  {
+  	console.log("DBG: initStremReq mount() called")
     initStream()
   }
 }

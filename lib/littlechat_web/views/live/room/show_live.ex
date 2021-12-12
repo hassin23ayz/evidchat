@@ -17,7 +17,7 @@ defmodule LittlechatWeb.Room.ShowLive do
   def render(assigns) do
     ~L"""
     <h1>Room = </h1>
-    <h1><%= @room.title %></h1>
+    <h1><%= @room.title %> </h1>
 
     <h3>Connected Users:</h3>
     <ul>
@@ -27,6 +27,8 @@ defmodule LittlechatWeb.Room.ShowLive do
           </li>
       <% end %>
     </ul>
+    
+    <div id="init-stream-req" phx-hook="initStremReq">
 
     <div class="streams">
       <video 
@@ -42,7 +44,7 @@ defmodule LittlechatWeb.Room.ShowLive do
       <% end %>
     </div>
 
-    <button class="button" phx-hook="JoinCall">Join Call </button>
+    <button class="button" >Join Call </button>
     """
   end
 
