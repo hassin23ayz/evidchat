@@ -63,6 +63,7 @@ async function initStream() {
 	}
 }
 
+
 // hooks related 
 /*
   A Phx-hook type element at Phx Elixir Render EEEx code 
@@ -85,10 +86,12 @@ Hooks.initStremReq = {
 // show_live.ex: phx-hook="InitUser" @ each connected_users video liveview
 Hooks.InitUser = {
 	mounted() {
+		console.log("DBG: initUser mounted() called")
 		addUserConnection(this.el.dataset.userUuid)
 	},
 
 	destroyed() {
+		console.log("DBG: initUser mounted() called")
 		removeUserConnection( this.el.dataset.userUuid)
 	}
 }
