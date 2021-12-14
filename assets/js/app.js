@@ -37,6 +37,10 @@ var users = {}
       Client B sets the sent SDP answer as local Description
 
     After ICE candidates & SDP are transacted , Streaming starts 
+
+    In a mesh architecture, each user has n - 1 peer connections to each other user. 
+    So, if a User C were to enter the chat room, users A and B would need to send their offers, with User C responding, 
+    and the rest of the steps taking place as layed out above.
 */ 
 
 function createPeerConnection(lv, fromUser, offer) 
@@ -154,6 +158,57 @@ Hooks.InitUser = {
 		removeUserConnection( this.el.dataset.userUuid)
 	}
 }
+
+Hooks.HandleOfferRequest = {
+  mounted () {
+    console.log("new offer request from", this.el.dataset.fromUserUuid)
+    let fromUser = this.el.dataset.fromUserUuid
+    createPeerConnection(this, fromUser)
+  }
+}
+
+Hooks.HandleIceCandidateOffer = {
+  mounted () {
+    let data = this.el.dataset
+    let fromUser = data.fromUserUuid
+    let iceCandidate = JSON.parse(data.iceCandidate)
+    let peerConnection = users[fromUser].peerConnection
+
+    console.log("new ice candidate from", fromUser, iceCandidate)
+
+    peerConnection.addIceCandidate(iceCandidate)
+  }
+}
+
+Hooks.HandleSdpOffer = {
+  mounted () {
+    let data = this.el.dataset
+    let fromUser = data.fromUserUuid
+    let sdp = data.sdp
+
+    if (sdp != "") {
+      console.log("new sdp OFFER from", data.fromUserUuid, data.sdp)
+
+      createPeerConnection(this, fromUser, sdp)
+    }
+  }
+}
+
+Hooks.HandleAnswer = {
+  mounted () {
+    let data = this.el.dataset
+    let fromUser = data.fromUserUuid
+    let sdp = data.sdp
+    let peerConnection = users[fromUser].peerConnection
+
+    if (sdp != "") {
+      console.log("new sdp ANSWER from", fromUser, sdp)
+      peerConnection.setRemoteDescription({type: "answer", sdp: sdp})
+    }
+  }
+}
+
+// socket related
 
 let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
 
