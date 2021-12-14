@@ -1,38 +1,98 @@
-// We import the CSS which is extracted to its own file by esbuild.
-// Remove this line if you add a your own CSS build pipeline (e.g postcss).
 import "../css/app.css"
-
-// If you want to use Phoenix channels, run `mix help phx.gen.channel`
-// to get started and then uncomment the line below.
-// import "./user_socket.js"
-
-// You can include dependencies in two ways.
-//
-// The simplest option is to put them in assets/vendor and
-// import them using relative paths:
-//
-//     import "./vendor/some-package.js"
-//
-// Alternatively, you can `npm install some-package` and import
-// them using a path starting with the package name:
-//
-//     import "some-package"
-//
-
-// Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
-// Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-
-// video stream
 var localStream
-
-// keeping track of our users
 var users = {}
+/* 
+   2 types of information get transacted between A & B : SDP & ICE candidates
+   Live View Hook and Phx Pubsub plays as the Media (Signalling Server) to transact these 2 infos 
+
+   ICE candidate: 
+   	   Routing info for a client to communicate with another client
+   	   Client A itself communicates with Stun server
+       Client A gets ICE candidate info from STUN server [onicecandidate: callback]
+       Client A sends it's ICE candidate info to another client B via the signalling server(Live view hook + Phx Pubsub)
+       Client B itself communicates with Stun server
+       Client B gets ICE candidate info from STUN server [onicecandidate: callback]
+       Client B sends it's ICE candidate info to another client A via the signalling server(Live view hook + Phx Pubsub)
+       After Several transaction ICE candidates are fixed between Client A and B 
+	
+	 
+   SDP :
+      SDP describes media communication Session : audio/video codecs supported 
+			Client A creates RTC peer Connection -> triigers onnegotiationneeded: callback
+			Client A creates a new SDP offer [onnegotiationneeded: callback]
+			Client A sets the SDP offer as local description 
+			Client A sends the SDP offer to Client B via the signalling server(Live view hook + Phx Pubsub)
+
+			signalling server(Live view hook + Phx Pubsub) calls function createPeerConnection(lv, fromUser, offer= defined)
+			Client B gets the SDP offer
+      Client B sets the received SDP offer as remote Description
+      Client B creates an SDP answer 
+      Client B sends the SDP answer to Client A via the signalling server(Live view hook + Phx Pubsub)
+      Client B sets the sent SDP answer as local Description
+
+    After ICE candidates & SDP are transacted , Streaming starts 
+*/ 
+
+function createPeerConnection(lv, fromUser, offer) 
+{
+
+  let newPeerConnection = new RTCPeerConnection(
+  {
+    iceServers: [ { urls: "stun:littlechat.app:3478" } ]
+  })
+
+  users[fromUser].peerConnection = newPeerConnection;
+
+  // Add each local track to the RTCPeerConnection.
+  localStream.getTracks().forEach(track => newPeerConnection.addTrack(track, localStream))
+
+  newPeerConnection.onicecandidate = async ({candidate}) => {
+    // fromUser is the new value for toUser because we're sending this data back to the sender
+    lv.pushEvent("new_ice_candidate", {toUser: fromUser, candidate})
+  }
+
+  if (offer === undefined) {
+    newPeerConnection.onnegotiationneeded = async () => {
+      try {
+        newPeerConnection.createOffer()
+          .then((offer) => {
+            newPeerConnection.setLocalDescription(offer)
+            console.log("Sending this OFFER to the requester:", offer)
+            lv.pushEvent("new_sdp_offer", {toUser: fromUser, description: offer})
+          })
+          .catch((err) => console.log(err))
+      }
+      catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
+  // If creating an answer, rather than an initial offer.
+  if (offer !== undefined) {
+    newPeerConnection.setRemoteDescription({type: "offer", sdp: offer})
+    newPeerConnection.createAnswer()
+      .then((answer) => {
+        newPeerConnection.setLocalDescription(answer)
+        console.log("Sending this ANSWER to the requester:", answer)
+        lv.pushEvent("new_answer", {toUser: fromUser, description: answer})
+      })
+      .catch((err) => console.log(err))
+  }
+
+  newPeerConnection.ontrack = async (event) => {
+    console.log("Track received:", event)
+    document.getElementById(`video-remote-${fromUser}`).srcObject = event.streams[0]
+  }
+
+  return newPeerConnection;
+}
 
 // user connections manipulation 
 function addUserConnection(userUuid) {
@@ -62,7 +122,6 @@ async function initStream() {
 		console.log(e)
 	}
 }
-
 
 // hooks related 
 /*
