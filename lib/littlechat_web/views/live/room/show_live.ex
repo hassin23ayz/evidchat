@@ -218,7 +218,7 @@ defmodule LittlechatWeb.Room.ShowLive do
   def handle_info(%Broadcast{event: "new_sdp_offer", payload: payload}, socket) do
     {:noreply,
       socket
-      |> assign(:sdp_offers, socket.assigns.ice_candidate_offers ++ [payload])
+      |> assign(:sdp_offers, socket.assigns.sdp_offers ++ [payload])
     }
   end
 
