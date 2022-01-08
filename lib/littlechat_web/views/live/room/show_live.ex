@@ -85,7 +85,16 @@ defmodule LittlechatWeb.Room.ShowLive do
       room ->
 
         user = create_connected_user()
+        # Phx Pubsub subscribes the caller(this process) to the PubSub adapter's topic.
+        # the server module is listed at the children tree of the application.ex supervisor
+        # subscribe(server, topic, opts(optional) )
         Phoenix.PubSub.subscribe(Littlechat.PubSub, "room:" <> slug)
+        # Phx liveview is built on channels : so this liveview has a channel too
+        # Presence.track , tracks the this liveview's channel process as a presence
+        # track(socket, topic, key, meta)
+        # Use Presence to track activity of This topic (Room slug as topic)
+        # user(key) on a topic(slug) are tracked using presence
+        # on each mount->sub_room() call user as key gets added to keys of presence
         {:ok, _} = Presence.track(self(), "room:" <> slug, user.uuid, %{})
 
         # user subcribes to their own topic 
@@ -108,6 +117,9 @@ defmodule LittlechatWeb.Room.ShowLive do
 
   # Phoenix Presence broadcasts a message 
   # to connected processes with the event presence_diff
+
+    # when a change happens at the room this handler gets called
+  # the call is made by Presence broadcasting the "presence_diff" event
   @impl true
   def handle_info(%Broadcast{event: "presence_diff"}, socket) do
     {

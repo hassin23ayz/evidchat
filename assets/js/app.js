@@ -48,7 +48,15 @@ function createPeerConnection(lv, fromUser, offer)
 
   let newPeerConnection = new RTCPeerConnection(
   {
-    iceServers: [ { urls: "stun:littlechat.app:3478" } ]
+    // iceServers: [ { urls: "stun:littlechat.app:3478" } ]
+    //iceServers: [ { urls: "stun.12connect.com:3478" } ]
+	  iceServers: [
+	  { urls: "stun:littlechat.app:3478" },
+	  {
+	    urls: "turn:139.59.27.84:3478?transport=udp",
+	    username: "ayaz",
+	    credential: "123456"
+	  }]
   })
 
   users[fromUser].peerConnection = newPeerConnection;
@@ -58,7 +66,8 @@ function createPeerConnection(lv, fromUser, offer)
 
   newPeerConnection.onicecandidate = async ({candidate}) => {
     // fromUser is the new value for toUser because we're sending this data back to the sender
-    lv.pushEvent("new_ice_candidate", {toUser: fromUser, candidate})
+    lv.pushEvent("new_ice_candidate", {toUser: fromUser, candidate});
+    console.log("candidate details:", candidate);
   }
 
   if (offer === undefined) {
@@ -100,6 +109,7 @@ function createPeerConnection(lv, fromUser, offer)
 
 // user connections manipulation 
 function addUserConnection(userUuid) {
+  console.log("DBG: addUserConnection() called")
 	if (users[userUuid] == undefined) {
 		users[userUuid] = { peerConnection: null}
 	}
@@ -154,7 +164,7 @@ Hooks.InitUser = {
 	},
 
 	destroyed() {
-		console.log("DBG: initUser mounted() called")
+		console.log("DBG: initUser destroyed() called")
 		removeUserConnection( this.el.dataset.userUuid)
 	}
 }
