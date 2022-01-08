@@ -468,11 +468,6 @@ function createPeerConnection(lv, fromUser, offer)
       { urls: "stun:iphone-stun.strato-iphone.de:3478" },
       { urls: "stun:fairytel.at:3478" },
       { urls: "stun:autosystem.com:3478" }    
-	  // {
-	  //   urls: "turn:139.59.27.84:3478" },?transport=udp",
-	  //   username: "ayaz",
-	  //   credential: "123456"
-	  // }
     ]
   })
 
